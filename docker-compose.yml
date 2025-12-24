@@ -48,4 +48,3 @@ networks:
   agnos-net:
     driver: bridge
 
-      - SILENCE_LOGS=true

@@ -13,13 +13,6 @@ import (
 
 func NewPostgresConnection(configuration *config.Config) (*gorm.DB, error) {
 	dsn := configuration.DatabaseUrl
-	if !strings.Contains(dsn, "preferSimpleProtocol") {
-		if strings.Contains(dsn, "?") {
-			dsn += "&preferSimpleProtocol=true"
-		} else {
-			dsn += "?preferSimpleProtocol=true"
-		}
-	}
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
@@ -49,13 +42,6 @@ func NewPostgresConnection(configuration *config.Config) (*gorm.DB, error) {
 // for seeding
 func NewPostgresConnectionNoMigrate(configuration *config.Config) (*gorm.DB, error) {
 	dsn2 := configuration.DatabaseUrl
-	if !strings.Contains(dsn2, "preferSimpleProtocol") {
-		if strings.Contains(dsn2, "?") {
-			dsn2 += "&preferSimpleProtocol=true"
-		} else {
-			dsn2 += "?preferSimpleProtocol=true"
-		}
-	}
 
 	db, err := gorm.Open(postgres.Open(dsn2), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
