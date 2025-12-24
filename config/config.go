@@ -19,7 +19,9 @@ func Load() *Config {
 		GinMode:     getEnv("GIN_MODE", "release"),
 		JwtSecret:   getEnv("JWT_SECRET", "defaultsecret"),
 	}
-	log.Printf("Configuration loaded: %+v\n", cfg)
+	if v, _ := os.LookupEnv("SILENCE_LOGS"); v != "true" {
+		log.Printf("Configuration loaded: %+v\n", cfg)
+	}
 	return cfg
 }
 

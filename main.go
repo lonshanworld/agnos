@@ -7,8 +7,10 @@ import (
 	"agnos_candidate_assignment/middleware"
 	"agnos_candidate_assignment/repositories"
 	"agnos_candidate_assignment/services"
+	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -17,6 +19,12 @@ import (
 func main() {
 	_ = godotenv.Load()
 	conf := config.Load()
+
+	if v, _ := os.LookupEnv("SILENCE_LOGS"); v == "true" || conf.GinMode == "release" {
+		log.SetOutput(io.Discard)
+		gin.DefaultWriter = io.Discard
+		gin.DefaultErrorWriter = io.Discard
+	}
 
 	db, err := database.NewPostgresConnection(conf)
 
@@ -37,7 +45,12 @@ func main() {
 
 	gin.SetMode(conf.GinMode)
 
-	router := gin.Default()
+	router := gin.New()
+	router.Use(gin.RecoveryWithWriter(io.Discard))
+
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
 
 	api := router.Group("/api")
 	api.GET("/health", func(c *gin.Context) {
@@ -64,9 +77,7 @@ func main() {
 		})
 	}
 
-	// Protected search: staff must provide JWT; hospital comes from token
 	api.GET("/patient/search", authMiddleWare, func(c *gin.Context) {
-		// JWT middleware sets claims in context; handler will use claims
 		patientHandler.Search(c)
 	})
 

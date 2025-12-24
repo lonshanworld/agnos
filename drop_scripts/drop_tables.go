@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-	// Try loading .env (optional). If present, environment variables will be populated.
 	_ = godotenv.Load()
 
 	dbURL := os.Getenv("DATABASE_URL")
@@ -27,10 +26,8 @@ func main() {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 
-	// no connection lifetime/timeouts set; rely on defaults
 	_, _ = db.DB()
 
-	// include both singular and plural table names we've seen in this DB
 	tables := []string{"patients", "staff", "staffs", "hospitals"}
 	for _, t := range tables {
 		qry := fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE;", t)
@@ -42,7 +39,6 @@ func main() {
 
 	fmt.Println("All specified tables dropped successfully.")
 
-	// Confirmation: list remaining tables in the public schema
 	fmt.Println("Verifying remaining tables in public schema:")
 	rows, err := db.Raw("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public'").Rows()
 	if err != nil {

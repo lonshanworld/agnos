@@ -32,7 +32,7 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"
+      # Port 443 mapping removed as Cloudflare orange proxy will front TLS
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
@@ -47,3 +47,5 @@ volumes:
 networks:
   agnos-net:
     driver: bridge
+
+      - SILENCE_LOGS=true

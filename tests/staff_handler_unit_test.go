@@ -43,7 +43,6 @@ func TestStaffRegister_PositiveAndLogin_Positive(t *testing.T) {
 	router.POST("/api/:hospital/staff/create", sh.Register)
 	router.POST("/api/:hospital/staff/login", sh.Login)
 
-	// register
 	reg := map[string]string{"username": "u1", "password": "p"}
 	rb, _ := json.Marshal(reg)
 	rreq := httptest.NewRequest(http.MethodPost, "/api/Hosp/staff/create", bytes.NewReader(rb))
@@ -52,7 +51,6 @@ func TestStaffRegister_PositiveAndLogin_Positive(t *testing.T) {
 	router.ServeHTTP(rrec, rreq)
 	require.Equal(t, http.StatusCreated, rrec.Code)
 
-	// login
 	lreq := httptest.NewRequest(http.MethodPost, "/api/Hosp/staff/login", bytes.NewReader(rb))
 	lreq.Header.Set("Content-Type", "application/json")
 	lrec := httptest.NewRecorder()
@@ -90,4 +88,23 @@ func TestStaffLogin_WrongCredentials(t *testing.T) {
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
 	require.Equal(t, http.StatusUnauthorized, rr.Code)
+}
+
+func TestStaffRegister_ServiceError(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mock := &mockAuthService{RegisterFn: func(hospital, username, password string) (*models.Staff, error) {
+		return nil, errors.New("service fail")
+	}}
+
+	sh := handlers.NewStaffHandler(mock)
+	router := gin.New()
+	router.POST("/api/:hospital/staff/create", sh.Register)
+
+	reg := map[string]string{"username": "u1", "password": "p"}
+	rb, _ := json.Marshal(reg)
+	rreq := httptest.NewRequest(http.MethodPost, "/api/Hosp/staff/create", bytes.NewReader(rb))
+	rreq.Header.Set("Content-Type", "application/json")
+	rrec := httptest.NewRecorder()
+	router.ServeHTTP(rrec, rreq)
+	require.Equal(t, http.StatusInternalServerError, rrec.Code)
 }

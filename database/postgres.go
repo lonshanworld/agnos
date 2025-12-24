@@ -4,6 +4,7 @@ import (
 	"agnos_candidate_assignment/config"
 	"agnos_candidate_assignment/models"
 	"log"
+	"strings"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -11,7 +12,16 @@ import (
 )
 
 func NewPostgresConnection(configuration *config.Config) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(configuration.DatabaseUrl), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
+	dsn := configuration.DatabaseUrl
+	if !strings.Contains(dsn, "preferSimpleProtocol") {
+		if strings.Contains(dsn, "?") {
+			dsn += "&preferSimpleProtocol=true"
+		} else {
+			dsn += "?preferSimpleProtocol=true"
+		}
+	}
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
 		return nil, err
 	}
@@ -37,9 +47,17 @@ func NewPostgresConnection(configuration *config.Config) (*gorm.DB, error) {
 }
 
 // for seeding
-// for seeding
 func NewPostgresConnectionNoMigrate(configuration *config.Config) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(configuration.DatabaseUrl), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
+	dsn2 := configuration.DatabaseUrl
+	if !strings.Contains(dsn2, "preferSimpleProtocol") {
+		if strings.Contains(dsn2, "?") {
+			dsn2 += "&preferSimpleProtocol=true"
+		} else {
+			dsn2 += "?preferSimpleProtocol=true"
+		}
+	}
+
+	db, err := gorm.Open(postgres.Open(dsn2), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
 		return nil, err
 	}

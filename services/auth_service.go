@@ -81,13 +81,11 @@ func (auth *AuthService) Login(hospitalName, username, password string) (string,
 	}
 
 	now := time.Now()
-	claims := StaffClaims{
-		StaffID:    staff.ID,
-		HospitalID: staff.HospitalID,
-		RegisteredClaims: jwt.RegisteredClaims{
-			IssuedAt:  jwt.NewNumericDate(now),
-			ExpiresAt: jwt.NewNumericDate(now.Add(24 * time.Hour)),
-		},
+	claims := jwt.MapClaims{
+		"staff_id":    staff.ID,
+		"hospital_id": staff.HospitalID,
+		"iat":         now.Unix(),
+		"exp":         now.Add(24 * time.Hour).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

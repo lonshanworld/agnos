@@ -21,7 +21,16 @@ func (repo *PatientRepository) Create(p *models.Patient) error {
 func (repo *PatientRepository) Search(hospitalID uint, filters map[string]interface{}) ([]models.Patient, error) {
 	db := repo.db.Model(&models.Patient{}).Where("hospital_id = ?", hospitalID)
 	for k, v := range filters {
-		db = db.Where(k+" = ?", v)
+		switch k {
+		case "first_name":
+			db = db.Where("(first_name_th = ? OR first_name_en = ?)", v, v)
+		case "middle_name":
+			db = db.Where("(middle_name_th = ? OR middle_name_en = ?)", v, v)
+		case "last_name":
+			db = db.Where("(last_name_th = ? OR last_name_en = ?)", v, v)
+		default:
+			db = db.Where(k+" = ?", v)
+		}
 	}
 
 	var results []models.Patient

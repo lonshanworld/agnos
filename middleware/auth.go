@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"agnos_candidate_assignment/config"
@@ -45,12 +46,58 @@ func JWTAuth(conf *config.Config, staffRepo *repositories.StaffRepository) gin.H
 			return
 		}
 
-		if _, err := staffRepo.GetByID(claims.StaffID); err != nil {
+		var staffID uint = claims.StaffID
+		var hospitalID uint = claims.HospitalID
+		if staffID == 0 {
+			var mc jwt.MapClaims
+			if _, err2 := jwt.ParseWithClaims(tokenString, &mc, func(token *jwt.Token) (interface{}, error) {
+				return []byte(conf.JwtSecret), nil
+			}); err2 == nil {
+				readUint := func(key string) (uint, bool) {
+					if v, ok := mc[key]; ok && v != nil {
+						switch t := v.(type) {
+						case float64:
+							return uint(t), true
+						case int64:
+							return uint(t), true
+						case int:
+							return uint(t), true
+						case string:
+							if u, err := strconv.ParseUint(t, 10, 64); err == nil {
+								return uint(u), true
+							}
+						}
+					}
+					return 0, false
+				}
+
+				if v, ok := readUint("staff_id"); ok {
+					staffID = v
+				} else if v, ok := readUint("StaffID"); ok {
+					staffID = v
+				} else if v, ok := readUint("staffId"); ok {
+					staffID = v
+				}
+				if v, ok := readUint("hospital_id"); ok {
+					hospitalID = v
+				} else if v, ok := readUint("HospitalID"); ok {
+					hospitalID = v
+				} else if v, ok := readUint("hospitalId"); ok {
+					hospitalID = v
+				}
+			}
+		}
+
+		if _, err := staffRepo.GetByID(staffID); err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Staff not found"})
 			return
 		}
 
-		c.Set(string(StaffContextKey), claims)
+		if staffID != claims.StaffID || hospitalID != claims.HospitalID {
+			c.Set(string(StaffContextKey), &StaffClaims{StaffID: staffID, HospitalID: hospitalID})
+		} else {
+			c.Set(string(StaffContextKey), claims)
+		}
 		c.Next()
 	}
 }

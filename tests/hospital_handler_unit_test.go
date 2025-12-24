@@ -76,3 +76,21 @@ func TestHospitalCreate_NegativeCreateError(t *testing.T) {
 
 	require.Equal(t, http.StatusInternalServerError, rr.Code)
 }
+
+func TestHospitalCreate_BadRequestBinding(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	mock := &mockHospitalRepo{CreateFn: func(h *models.Hospital) error {
+		return nil
+	}}
+
+	hh := handlers.NewHospitalHandler(mock)
+	router := gin.New()
+	router.POST("/api/hospital", hh.Create)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/hospital", bytes.NewReader([]byte(`{}`)))
+	req.Header.Set("Content-Type", "application/json")
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	require.Equal(t, http.StatusBadRequest, rr.Code)
+}

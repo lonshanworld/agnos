@@ -17,7 +17,6 @@ func NewPatientHandler(patientService services.PatientServiceInterface) *Patient
 	return &PatientHandler{patientService: patientService}
 }
 
-// Protected search: uses staff JWT to determine hospital
 func (patientHandler *PatientHandler) Search(c *gin.Context) {
 	claims := middleware.GetStaffClaims(c)
 	if claims == nil {
@@ -25,7 +24,6 @@ func (patientHandler *PatientHandler) Search(c *gin.Context) {
 		return
 	}
 	hospitalID := claims.HospitalID
-
 	filters := map[string]any{}
 	if v := c.Query("national_id"); v != "" {
 		filters["national_id"] = v
@@ -34,13 +32,31 @@ func (patientHandler *PatientHandler) Search(c *gin.Context) {
 		filters["passport_id"] = v
 	}
 	if v := c.Query("first_name"); v != "" {
-		filters["first_name_th"] = v
+		filters["first_name"] = v
 	}
 	if v := c.Query("middle_name"); v != "" {
-		filters["middle_name_th"] = v
+		filters["middle_name"] = v
 	}
 	if v := c.Query("last_name"); v != "" {
+		filters["last_name"] = v
+	}
+	if v := c.Query("first_name_th"); v != "" {
+		filters["first_name_th"] = v
+	}
+	if v := c.Query("middle_name_th"); v != "" {
+		filters["middle_name_th"] = v
+	}
+	if v := c.Query("last_name_th"); v != "" {
 		filters["last_name_th"] = v
+	}
+	if v := c.Query("first_name_en"); v != "" {
+		filters["first_name_en"] = v
+	}
+	if v := c.Query("middle_name_en"); v != "" {
+		filters["middle_name_en"] = v
+	}
+	if v := c.Query("last_name_en"); v != "" {
+		filters["last_name_en"] = v
 	}
 	if v := c.Query("date_of_birth"); v != "" {
 		filters["date_of_birth"] = v
@@ -60,7 +76,6 @@ func (patientHandler *PatientHandler) Search(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"patients": results})
 }
 
-// Public lookup by national_id or passport_id (no auth)
 func (h *PatientHandler) GetByID(c *gin.Context) {
 	raw, ok := c.Get("hospital_id")
 	if !ok {
