@@ -1,2 +1,4 @@
 # ignore development doc exports
 /docs/development_plan.md
+
+.env
