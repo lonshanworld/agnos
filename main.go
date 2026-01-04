@@ -12,9 +12,32 @@ import (
 	"net/http"
 	"os"
 
+	_ "agnos_candidate_assignment/docs" // swagger docs
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title           Agnos Hospital API
+// @version         1.0
+// @description     Hospital management system API with patient records and staff authentication
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.email  support@agnos.com
+
+// @license.name  MIT
+// @license.url   https://opensource.org/licenses/MIT
+
+// @host      agnos.lonshan.com
+// @BasePath  /api
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 
 func main() {
 	_ = godotenv.Load()
@@ -47,6 +70,9 @@ func main() {
 
 	router := gin.New()
 	router.Use(gin.RecoveryWithWriter(io.Discard))
+
+	// Swagger route
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})

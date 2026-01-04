@@ -6,7 +6,13 @@ A small middleware service to search and display patient information from multip
 ## Project Overview
 
 - Purpose: Allow hospital staff to authenticate and search for patients belonging to the staff's hospital. Patient data may be fetched from external HIS APIs and stored or cached in our database.
-- Tech: Go, Gin, PostgreSQL, Docker, Nginx, JWT for auth
+- Tech: Go, Gin, PostgreSQL, Docker, Nginx, JWT for auth, Swagger/OpenAPI documentation
+
+## API Documentation
+
+**Swagger UI**: Available at `/swagger/index.html` when the server is running.
+
+Example: `http://localhost:8080/swagger/index.html` or `https://agnos.lonshan.com/swagger/index.html`
 
 ## Project Structure
 
@@ -74,6 +80,42 @@ go mod download
 go run main.go
 ```
 
+## Swagger Documentation Setup
+
+### Install swag CLI
+
+```bash
+go install github.com/swaggo/swag/cmd/swag@latest
+```
+
+### Install dependencies
+
+```bash
+go get -u github.com/swaggo/gin-swagger
+go get -u github.com/swaggo/files
+go mod tidy
+```
+
+### Generate Swagger docs
+
+Run this command in the project root to auto-generate Swagger documentation from code annotations:
+
+```bash
+swag init
+```
+
+This creates/updates the `docs/` folder with `docs.go`, `swagger.json`, and `swagger.yaml`.
+
+### Access Swagger UI
+
+Start the server and navigate to:
+- Local: `http://localhost:8080/swagger/index.html`
+- Production: `https://agnos.lonshan.com/swagger/index.html`
+
+### Regenerate docs after changes
+
+After adding or modifying API endpoints, run `swag init` again to update the documentation.
+
 ## Testing
 
 Run unit tests:
@@ -90,6 +132,4 @@ go test ./... -v
 4. Implement JWT auth middleware and handlers for staff and patient APIs.
 5. Add unit tests under `tests/`.
 
----
 
-If you'd like, I can now create the `.env.example` and the initial `config` and `database` helper files. Which should I create next? (`.env.example` or DB connection`)

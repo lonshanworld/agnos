@@ -17,9 +17,20 @@ func NewHospitalHandler(repo repositories.HospitalRepositoryInterface) *Hospital
 }
 
 type createHospitalRequest struct {
-	Name string `json:"name" binding:"required"`
+	Name string `json:"name" binding:"required" example:"General Hospital"`
 }
 
+// Create godoc
+// @Summary      Create a new hospital
+// @Description  Register a new hospital in the system
+// @Tags         hospitals
+// @Accept       json
+// @Produce      json
+// @Param        request body createHospitalRequest true "Hospital creation request"
+// @Success      201  {object}  models.Hospital
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /hospital [post]
 func (hospitalHandler *HospitalHandler) Create(c *gin.Context) {
 	var req createHospitalRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

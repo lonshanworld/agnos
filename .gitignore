@@ -1,4 +1,9 @@
 # ignore development doc exports
 /docs/development_plan.md
 
+# Swagger auto-generated docs (regenerate with swag init)
+/docs/docs.go
+/docs/swagger.json
+/docs/swagger.yaml
+
 .env

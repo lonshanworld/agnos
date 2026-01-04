@@ -4,7 +4,6 @@ import (
 	"agnos_candidate_assignment/config"
 	"agnos_candidate_assignment/models"
 	"log"
-	"strings"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
